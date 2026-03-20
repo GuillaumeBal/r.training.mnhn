@@ -131,15 +131,25 @@ ggplot(
         upper = Q0.75  , ymax =  Q0.975),
     stat = "identity")
 
-# facet_wrap and facet grid ==============================
+# facet_grid  ========================================
 
 salmon.data$sea.age %<>% as.factor() 
 salmon.data$river %<>% as.factor() 
 
 ggplot(data = salmon.data) +
-  geom_point(
-    aes(x = length, y = weight)) +
+  geom_point(aes(x = length, y = weight)) +
   facet_grid(sea.age ~ river)
+
+# make pdf outpout ===============================
+
+my.plot <- 
+ggplot(data = salmon.data) +
+  geom_point(aes(x = length, y = weight)) +
+  facet_grid(sea.age ~ river)
+
+pdf('my.figs.pdf')
+print(my.plot)
+dev.off()
 
 # trying locator in ggplot =====================================================
 
