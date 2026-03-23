@@ -2,17 +2,21 @@ rm(list = ls())
 
 require(magrittr)
 
+# graphiques dont cartes
 require(ggplot2)
-require(viridis)
+require(viridis) # palette 
 require(ggmap)
 
+# to aggregate some spatial info
 require(tidyverse)
 
+#carto
 require(sf)
 require(sp)
+require(raster)
+# shapefiles online
 require(eurostat)
 require(rnaturalearth)
-require(raster)
 
 require(Cairo)
 #require(ggedit)
@@ -28,7 +32,8 @@ dir()
 
 # word map
 word.map <-
-  st_read('0.maps/CNTR_RG_03M_2024_4326.shp')
+  st_read('0.maps/CNTR_RG_03M_2024_4326.shp') %>% 
+  st_make_valid() 
 
 # plot 
 ggplot() +
@@ -38,10 +43,15 @@ ggplot() +
 sf_use_s2(use_s2 = FALSE) # because et_make_valid not enough
 
 # crop to area europe of lynx metapop
+plot(st_geometry(word.map))
+locator() # resolution ecra n 100
+
+# crop to europe
 eu.map <- 
   word.map %>% #st_make_valid() %>%
   st_crop(.,
-          st_bbox(c(xmin = -7, xmax = 11, ymax = 51.5, ymin = 41.75),
+          st_bbox(c(xmin = -7, xmax = 11,
+                    ymax = 51.5, ymin = 41.75),
                   crs = st_crs(4326)))
 
 # plot eu map
@@ -71,6 +81,7 @@ eu.countries$europe.group <- 'europe' # add a variable to groun based on
 europe.coastline <-
   eu.countries %>% group_by(eu.countries$europe.group) %>% summarize()
 
+# plot eu, some maps issues
 ggplot() +
   geom_sf(data = europe.coastline)
 
@@ -84,7 +95,7 @@ pop.map <-
 
 # plot that with eu
 ggplot() +
-  geom_sf(data = europe.coastline) +
+  geom_sf(data = eu.countries) +
   geom_sf(data = pop.map, aes(fill = code))
 
 # cut t oget lynx in france only
@@ -99,6 +110,7 @@ ggplot() +
 
 # make maps with only reg with lynx ===========================================
 
+#isolate french regions
 fr.reg <- eu.divisions[eu.divisions$CNTRY_NAME == 'France', ]
 
 # isolate reg dep with esco
@@ -146,3 +158,8 @@ ggplot() +
   geom_sf(data = europe.coastline.crs2) +
   geom_tile(data = hab.pop.lynx.df, 
             aes(x = x, y = y, fill = mapHabCatL))
+
+# add st_area and st_polygones
+# possiblly make polygone from locator
+
+

@@ -171,8 +171,8 @@ apply(salmon.data.raw[,  c("length", "weight", 'julian.day')],
       FUN = mean,
       na.rm = TRUE)
 sapply(salmon.data.raw[,  c("length", "weight", 'julian.day')],
-      FUN = mean,
-      na.rm = TRUE)
+       FUN = mean,
+       na.rm = TRUE)
 lapply(salmon.data.raw[,  c("length", "weight", 'julian.day')],
        FUN = mean,
        na.rm = TRUE)
@@ -181,10 +181,103 @@ lapply(salmon.data.raw[,  c("length", "weight", 'julian.day')],
 tapply(salmonTidy$weight,
        INDEX = 
          list(salmonTidy$year, salmonTidy$river),
-         #salmonTidy[ , c("river", "sea.age")], 
+       #salmonTidy[ , c("river", "sea.age")], 
        FUN = mean, 
        na.rm = TRUE)
 
 table(salmonTidy$year, salmonTidy$river)
 
+# exo 6.2.2 ========================================
 
+indic.loop <- 1:9
+my.vector <- rep(NA, length(indic.loop))
+for(a in indic.loop){
+  my.vector[a + 1] <- paste("result", a, sep = ' = ' )
+  print(my.vector[a])
+}
+my.vector
+
+# exo 6.2.3 ==============================================
+
+nom.de.riviere <-
+  #unique(salmonTidy$river[!is.na(salmonTidy$river)])
+  levels(salmonTidy$river %>% as.factor())
+
+for(river.index in nom.de.riviere){
+  
+  saumon.riviere <-
+    salmonTidy[salmonTidy$river == river.index, ]
+  
+  saumon.riviere %>% head(., 4) %>% print(.)
+  
+  name <- paste('subset.river', river.index, 'txt', sep = '.')
+  
+  write.table(x = saumon.riviere, file = name, sep = ',', dec = '.')
+  
+  name.var <- name %>% gsub(., pattern = '.txt', replacement = '')
+  
+  assign(x = name.var, value = saumon.riviere)
+  
+}
+
+# ordonner donnes
+salmonTidy <- salmonTidy[
+  order(salmonTidy$river, salmonTidy$year, decreasing = FALSE), ]
+
+# exo 6.2.3 ==============================================
+
+nom.de.riviere <-
+  #unique(salmonTidy$river[!is.na(salmonTidy$river)])
+  levels(salmonTidy$river %>% as.factor())
+
+riviere.fr <- 
+  levels(salmonTidy[salmonTidy$country == 'fr', 'river'] %>% as.factor)
+
+#save only if river is french
+for(river.index in nom.de.riviere){
+  
+  saumon.riviere <- salmonTidy[!is.na(salmonTidy$country) &
+                                 !is.na(salmonTidy$river), ]
+  
+  saumon.riviere <-
+    saumon.riviere[saumon.riviere$river == river.index, ]
+  
+  if(all(saumon.riviere$country == 'fr')){
+    
+    saumon.riviere %>% head(., 4) %>% print(.)
+    
+    name <- paste('subset.river', river.index, 'txt', sep = '.')
+    
+    write.table(x = saumon.riviere, file = name, sep = ',', dec = '.')
+    
+    name.var <- name %>% gsub(., pattern = '.txt', replacement = '')
+    
+    assign(x = name.var, value = saumon.riviere)
+    
+    print('french')
+    
+  }else{
+    print('not french')
+  }
+  
+}
+
+saumon.riviere$country %>% table(useNA = 'always')
+
+# exo 7.1.1 ==============================================================
+
+power.it <- 
+  function(a, b){
+    if(!is.numeric(a) & !is.numeric(b)){
+      stop('numbers please')
+    }
+    if(!is.integer(a) | !is.integer(b)){
+      warning('not all integers')
+    }
+    return(a ^ b)
+  }
+
+power.it(3, 2.1)
+
+body(power.it)
+args(power.it)
